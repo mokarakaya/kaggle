@@ -7,7 +7,8 @@ import datetime
 chunk_size = 50000
 
 clf = MLPRegressor()
-
+nyc = (-74.0063889, 40.7141667)
+jfk = (-73.7822222222, 40.6441666667)
 
 def distance(lat1, lon1, lat2, lon2):
     p = 0.017453292519943295 # Pi/180
@@ -25,6 +26,11 @@ for train_df in pd.read_csv('data/train.csv', chunksize=chunk_size, parse_dates=
 
     train_df['distance_miles'] = distance(train_df.pickup_latitude, train_df.pickup_longitude,
                                           train_df.dropoff_latitude, train_df.dropoff_longitude).round(3)
+    # train_df['distance_to_center'] = distance(nyc[1], nyc[0], train_df.pickup_latitude, train_df.pickup_longitude)
+    # train_df['distance_to_center_drop_off'] = distance(nyc[1], nyc[0], train_df.dropoff_latitude, train_df.dropoff_longitude)
+
+    # train_df['distance_to_jfk'] = distance(jfk[1], jfk[0], train_df.pickup_latitude, train_df.pickup_longitude)
+    # train_df['distance_to_jfk_drop_off'] = distance(jfk[1], jfk[0], train_df.dropoff_latitude, train_df.dropoff_longitude)
 
     train_df['year'] = train_df.pickup_datetime.apply(lambda t: t.year)
     train_df['hour'] = train_df.pickup_datetime.apply(lambda t: t.hour)
@@ -43,6 +49,11 @@ for train_df in pd.read_csv('data/train.csv', chunksize=chunk_size, parse_dates=
 test_df = pd.read_csv('data/test.csv', parse_dates=['pickup_datetime'])
 test_df['distance_miles'] = distance(test_df.pickup_latitude, test_df.pickup_longitude,
                                      test_df.dropoff_latitude, test_df.dropoff_longitude)
+# test_df['distance_to_center'] = distance(nyc[1], nyc[0], test_df.pickup_latitude, test_df.pickup_longitude)
+# test_df['distance_to_center_drop_off'] = distance(nyc[1], nyc[0], test_df.dropoff_latitude, test_df.dropoff_longitude)
+# test_df['distance_to_jfk'] = distance(jfk[1], jfk[0], test_df.pickup_latitude, test_df.pickup_longitude)
+# test_df['distance_to_jfk_drop_off'] = distance(jfk[1], jfk[0], test_df.dropoff_latitude, test_df.dropoff_longitude)
+
 test_df['year'] = test_df.pickup_datetime.apply(lambda t: t.year)
 test_df['hour'] = test_df.pickup_datetime.apply(lambda t: t.hour)
 test_df['weekday'] = test_df.pickup_datetime.apply(lambda t: t.weekday())
