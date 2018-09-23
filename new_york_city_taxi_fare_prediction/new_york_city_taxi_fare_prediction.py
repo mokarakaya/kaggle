@@ -16,8 +16,9 @@ def distance(lat1, lon1, lat2, lon2):
     return 0.6213712 * 12742 * np.arcsin(np.sqrt(a))
 
 
-feature_classes = ["distance_miles",
-                   "year", "hour", 'weekday', 'passenger_count']
+feature_classes = ["distance_miles", "year", "hour", 'weekday', 'passenger_count', 'month', 'day',
+                   'distance_to_center', 'distance_to_center_drop_off',
+                   'distance_to_jfk', 'distance_to_jfk_drop_off']
 
 print(datetime.datetime.now())
 for train_df in pd.read_csv('data/train.csv', chunksize=chunk_size, parse_dates=['pickup_datetime']):
@@ -26,15 +27,18 @@ for train_df in pd.read_csv('data/train.csv', chunksize=chunk_size, parse_dates=
 
     train_df['distance_miles'] = distance(train_df.pickup_latitude, train_df.pickup_longitude,
                                           train_df.dropoff_latitude, train_df.dropoff_longitude).round(3)
-    # train_df['distance_to_center'] = distance(nyc[1], nyc[0], train_df.pickup_latitude, train_df.pickup_longitude)
-    # train_df['distance_to_center_drop_off'] = distance(nyc[1], nyc[0], train_df.dropoff_latitude, train_df.dropoff_longitude)
+    train_df['distance_to_center'] = distance(nyc[1], nyc[0], train_df.pickup_latitude, train_df.pickup_longitude)
+    train_df['distance_to_center_drop_off'] = distance(nyc[1], nyc[0], train_df.dropoff_latitude, train_df.dropoff_longitude)
 
-    # train_df['distance_to_jfk'] = distance(jfk[1], jfk[0], train_df.pickup_latitude, train_df.pickup_longitude)
-    # train_df['distance_to_jfk_drop_off'] = distance(jfk[1], jfk[0], train_df.dropoff_latitude, train_df.dropoff_longitude)
+    train_df['distance_to_jfk'] = distance(jfk[1], jfk[0], train_df.pickup_latitude, train_df.pickup_longitude)
+    train_df['distance_to_jfk_drop_off'] = distance(jfk[1], jfk[0], train_df.dropoff_latitude, train_df.dropoff_longitude)
 
     train_df['year'] = train_df.pickup_datetime.apply(lambda t: t.year)
     train_df['hour'] = train_df.pickup_datetime.apply(lambda t: t.hour)
     train_df['weekday'] = train_df.pickup_datetime.apply(lambda t: t.weekday())
+    train_df['month'] = train_df.pickup_datetime.apply(lambda t: t.month)
+    train_df['day'] = train_df.pickup_datetime.apply(lambda t: t.day)
+
     train_X = train_df[feature_classes]
     train_y = train_df["fare_amount"]
 
@@ -45,18 +49,20 @@ for train_df in pd.read_csv('data/train.csv', chunksize=chunk_size, parse_dates=
 
     print(datetime.datetime.now(), np.sqrt(((val_preds - y_test) ** 2).mean()))
 
-
 test_df = pd.read_csv('data/test.csv', parse_dates=['pickup_datetime'])
 test_df['distance_miles'] = distance(test_df.pickup_latitude, test_df.pickup_longitude,
                                      test_df.dropoff_latitude, test_df.dropoff_longitude)
-# test_df['distance_to_center'] = distance(nyc[1], nyc[0], test_df.pickup_latitude, test_df.pickup_longitude)
-# test_df['distance_to_center_drop_off'] = distance(nyc[1], nyc[0], test_df.dropoff_latitude, test_df.dropoff_longitude)
-# test_df['distance_to_jfk'] = distance(jfk[1], jfk[0], test_df.pickup_latitude, test_df.pickup_longitude)
-# test_df['distance_to_jfk_drop_off'] = distance(jfk[1], jfk[0], test_df.dropoff_latitude, test_df.dropoff_longitude)
+test_df['distance_to_center'] = distance(nyc[1], nyc[0], test_df.pickup_latitude, test_df.pickup_longitude)
+test_df['distance_to_center_drop_off'] = distance(nyc[1], nyc[0], test_df.dropoff_latitude, test_df.dropoff_longitude)
+test_df['distance_to_jfk'] = distance(jfk[1], jfk[0], test_df.pickup_latitude, test_df.pickup_longitude)
+test_df['distance_to_jfk_drop_off'] = distance(jfk[1], jfk[0], test_df.dropoff_latitude, test_df.dropoff_longitude)
 
 test_df['year'] = test_df.pickup_datetime.apply(lambda t: t.year)
 test_df['hour'] = test_df.pickup_datetime.apply(lambda t: t.hour)
 test_df['weekday'] = test_df.pickup_datetime.apply(lambda t: t.weekday())
+test_df['month'] = test_df.pickup_datetime.apply(lambda t: t.month)
+test_df['day'] = test_df.pickup_datetime.apply(lambda t: t.day)
+
 test_X = test_df[feature_classes]
 test_df['fare_amount'] = clf.predict(test_X)
 test_df[['key', 'fare_amount']].to_csv('data/result.csv', index=False)

@@ -12,7 +12,6 @@ import tensorflow as tf
 
 chunk_size = 5000
 
-clf = MLPRegressor(verbose=True)
 nyc = (-74.0063889, 40.7141667)
 jfk = (-73.7822222222, 40.6441666667)
 
@@ -23,36 +22,32 @@ def distance(lat1, lon1, lat2, lon2):
 
 
 feature_classes = ["distance_miles",
-                   "year", "hour", 'weekday', 'passenger_count']
+                   "hour", 'weekday', 'passenger_count']
 
 
 
 def neural_net_model(X_data,input_dim):
-    W_1 = tf.Variable(tf.random_uniform([input_dim,10]))
-    b_1 = tf.Variable(tf.zeros([10]))
-    layer_1 = tf.add(tf.matmul(X_data,W_1), b_1)
-    layer_1 = tf.nn.tanh(layer_1)
+    hidden_layer_nodes = 32
+    A1 = tf.Variable(tf.random_normal(mean=0.5, stddev=0.5, shape=[input_dim, hidden_layer_nodes]))  # inputs -> hidden nodes
+    b1 = tf.Variable(tf.random_normal(mean=0.5, stddev=0.5, shape=[hidden_layer_nodes]))  # one biases for each hidden node
+    A2 = tf.Variable(tf.random_normal(mean=0.5, stddev=0.5, shape=[hidden_layer_nodes, 1]))  # hidden inputs -> 1 output
+    b2 = tf.Variable(tf.random_normal(mean=0.5, stddev=0.5, shape=[1]))  # 1 bias for the output
 
-    W_2 = tf.Variable(tf.random_uniform([10,10]))
-    b_2 = tf.Variable(tf.zeros([10]))
-    layer_2 = tf.add(tf.matmul(layer_1,W_2), b_2)
-    layer_2 = tf.nn.tanh(layer_2)
+    # Declare model operations
+    hidden_output = tf.nn.relu(tf.add(tf.matmul(X_data, A1), b1))
+    final_output = tf.nn.relu(tf.add(tf.matmul(hidden_output, A2), b2))
 
-    W_O = tf.Variable(tf.random_uniform([10,1]))
-    b_O = tf.Variable(tf.zeros([1]))
-    output = tf.add(tf.matmul(layer_2,W_O), b_O)
-
-    return output,W_O
+    return final_output
 
 print(datetime.datetime.now())
 xs = tf.placeholder("float")
 ys = tf.placeholder("float")
 
-output, W_O = neural_net_model(xs, len(feature_classes))
+output = neural_net_model(xs, len(feature_classes))
 
 cost = tf.reduce_mean(tf.square(output - ys))
 # train = tf.train.AdamOptimizer(0.05).minimize(cost)
-train = tf.train.GradientDescentOptimizer(0.001).minimize(cost)
+train = tf.train.GradientDescentOptimizer(0.005).minimize(cost)
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
@@ -78,10 +73,13 @@ with tf.Session() as sess:
 
         train_X_values = train_X.values
         train_y_values = train_y.values
+        epoch_costs = []
         for i in range(10):
             # sess.run([cost,train],feed_dict={xs:X_train, ys:y_train})
             for j in range(train_X.shape[0]):
-                sess.run([cost, train], feed_dict={
+                sess.run([train, cost], feed_dict={
                     xs: train_X_values[j, :].reshape(1, len(feature_classes)), ys:train_y_values[j]})
-            epoch_cost = sess.run(cost, feed_dict={xs: train_X_values, ys: train_y_values})
-            print('Epoch :', i, 'Cost :', epoch_cost)
+                epoch_cost = sess.run(cost, feed_dict={
+                    xs: train_X_values[j, :].reshape(1, len(feature_classes)), ys: train_y_values[j]})
+                epoch_costs.append(epoch_cost)
+            print('Epoch :', i, 'Cost :', np.average(epoch_costs))
