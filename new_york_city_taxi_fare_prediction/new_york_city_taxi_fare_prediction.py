@@ -18,38 +18,38 @@ jfk = (-73.7822222222, 40.6441666667)
 clf = MLPRegressor()
 
 feature_classes = ["distance_miles", "year", "hour", 'weekday', 'passenger_count', 'month', 'day',
-                   'distance_to_center', 'distance_to_center_drop_off',
-                   'distance_to_jfk', 'distance_to_jfk_drop_off']
+                   'distance_to_center', 'distance_to_center_drop_off']
 counter = 0
 print(datetime.datetime.now())
-for train_df in pd.read_csv('data/train_preprocessed.csv', chunksize=chunk_size):
+for i in range(0,2):
+    for train_df in pd.read_csv('data/train_preprocessed.csv', chunksize=chunk_size):
 
-    train_X = train_df[feature_classes]
-    train_y = train_df["fare_amount"]
+        train_X = train_df[feature_classes]
+        train_y = train_df["fare_amount"]
 
-    X_train, X_test, y_train, y_test = train_test_split(train_X, train_y, test_size=0.1, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(train_X, train_y, test_size=0.1, random_state=42)
 
-    clf.partial_fit(X_train, y_train)
-    val_preds = clf.predict(X_test)
+        clf.partial_fit(X_train, y_train)
+        val_preds = clf.predict(X_test)
 
-    counter += 1
-    print(counter, datetime.datetime.now(), np.sqrt(((val_preds - y_test) ** 2).mean()))
+        counter += 1
+        print(i, counter, datetime.datetime.now(), np.sqrt(((val_preds - y_test) ** 2).mean()))
 
-test_df = pd.read_csv('data/test.csv', parse_dates=['pickup_datetime'])
-test_df['distance_miles'] = distance(test_df.pickup_latitude, test_df.pickup_longitude,
-                                     test_df.dropoff_latitude, test_df.dropoff_longitude)
-test_df['distance_to_center'] = distance(nyc[1], nyc[0], test_df.pickup_latitude, test_df.pickup_longitude)
-test_df['distance_to_center_drop_off'] = distance(nyc[1], nyc[0], test_df.dropoff_latitude, test_df.dropoff_longitude)
-test_df['distance_to_jfk'] = distance(jfk[1], jfk[0], test_df.pickup_latitude, test_df.pickup_longitude)
-test_df['distance_to_jfk_drop_off'] = distance(jfk[1], jfk[0], test_df.dropoff_latitude, test_df.dropoff_longitude)
+    test_df = pd.read_csv('data/test.csv', parse_dates=['pickup_datetime'])
+    test_df['distance_miles'] = distance(test_df.pickup_latitude, test_df.pickup_longitude,
+                                         test_df.dropoff_latitude, test_df.dropoff_longitude)
+    test_df['distance_to_center'] = distance(nyc[1], nyc[0], test_df.pickup_latitude, test_df.pickup_longitude)
+    test_df['distance_to_center_drop_off'] = distance(nyc[1], nyc[0], test_df.dropoff_latitude, test_df.dropoff_longitude)
+    test_df['distance_to_jfk'] = distance(jfk[1], jfk[0], test_df.pickup_latitude, test_df.pickup_longitude)
+    test_df['distance_to_jfk_drop_off'] = distance(jfk[1], jfk[0], test_df.dropoff_latitude, test_df.dropoff_longitude)
 
-test_df['year'] = test_df.pickup_datetime.apply(lambda t: t.year)
-test_df['hour'] = test_df.pickup_datetime.apply(lambda t: t.hour)
-test_df['weekday'] = test_df.pickup_datetime.apply(lambda t: t.weekday())
-test_df['month'] = test_df.pickup_datetime.apply(lambda t: t.month)
-test_df['day'] = test_df.pickup_datetime.apply(lambda t: t.day)
+    test_df['year'] = test_df.pickup_datetime.apply(lambda t: t.year)
+    test_df['hour'] = test_df.pickup_datetime.apply(lambda t: t.hour)
+    test_df['weekday'] = test_df.pickup_datetime.apply(lambda t: t.weekday())
+    test_df['month'] = test_df.pickup_datetime.apply(lambda t: t.month)
+    test_df['day'] = test_df.pickup_datetime.apply(lambda t: t.day)
 
-test_X = test_df[feature_classes]
-test_df['fare_amount'] = clf.predict(test_X)
-test_df[['key', 'fare_amount']].to_csv('data/result.csv', index=False)
-print(datetime.datetime.now())
+    test_X = test_df[feature_classes]
+    test_df['fare_amount'] = clf.predict(test_X)
+    test_df[['key', 'fare_amount']].to_csv('data/result.csv', index=False)
+    print(datetime.datetime.now())
