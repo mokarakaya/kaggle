@@ -2,3 +2,8 @@ torch
 torchvision
 torchaudio
 ipython
+kaggle
+jupyter
+pandas
+xgboost
+scikit-learn
