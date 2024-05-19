@@ -8,3 +8,4 @@ pandas
 xgboost
 scikit-learn
 catboost
+transformers
