@@ -105,3 +105,5 @@ venv.bak/
 # mypy
 .mypy_cache/
 .python-version
+
+catboost_info/
