@@ -6,3 +6,4 @@
 - [Tabular Playground Series - Mar 2021](tabular_playgroung_march_2021)
 - [Learning Agency Lab - Automated Essay Scoring 2.0](learning-agency-lab-automated-essay-scoring-2/)
 - [Heart Failure Prediction Dataset](heart_failure_prediction_dataset/)
+- [Food Demand Forecasting](food_demand_forecasting/)
