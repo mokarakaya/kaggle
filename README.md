@@ -7,3 +7,5 @@
 - [Learning Agency Lab - Automated Essay Scoring 2.0](learning-agency-lab-automated-essay-scoring-2/)
 - [Heart Failure Prediction Dataset](heart_failure_prediction_dataset/)
 - [Food Demand Forecasting](food_demand_forecasting/)
+- [ECommerce Text Classification](ecommerce_text_classification/)
+  - https://www.kaggle.com/datasets/saurabhshahane/ecommerce-text-classification/data
