@@ -9,9 +9,9 @@ xgboost
 scikit-learn
 catboost
 transformers
-lightning-bolts
 seaborn
 lightgbm
 ydata-profiling
 optuna
 xgboost
+pytorch-lightning
